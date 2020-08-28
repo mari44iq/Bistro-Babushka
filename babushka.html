@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>JS Objekter</title>
+    <style>
+        article {
+            border: 1px solid #333;
+            padding: 10px;
+            background-color: #E9E8ED;
+            border-radius: 17px;
+
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        section {
+            width: 90vw;
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-gap: 5px;
+
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>Bistro Babushka</h1>
+    <h2>MENU</h2>
+    <section>
+
+    </section>
+
+    <template>
+        <article>
+            <h2></h2>
+            <img src="" alt="">
+            <h2 class="navn"></h2>
+            <p class="kort"></p>
+            <p class="pris"></p>
+        </article>
+    </template>
+    <script>
+        let container = document.querySelector("section");
+        let temp = document.querySelector("template");
+
+        const link = "https://spreadsheets.google.com/feeds/list/17Dd7DvkPaFamNUdUKlrFgnH6POvBJXac7qyiS6zNRw0/od6/public/values?alt=json";
+
+
+
+
+        async function hentdata() {
+            const respons = await fetch(link);
+            const json = await respons.json();
+            vis(json);
+        }
+
+
+        function vis(retter) {
+            console.log(retter);
+
+            //løb igennem array "dyr"
+
+            retter.feed.entry.forEach(ret => {
+                const klon = temp.cloneNode(true).content;
+                klon.querySelector(".navn").textContent = ret.gsx$navn.$t;
+                klon.querySelector("img").src = "billeder/small/" + ret.gsx$billede.$t + ".jpg";
+                klon.querySelector(".kort").textContent = ret.gsx$kort.$t;
+                klon.querySelector(".pris").textContent = ret.gsx$pris.$t;
+                container.appendChild(klon);
+
+
+            })
+        }
+
+        hentdata();
+
+    </script>
+</body>
+
+</html>
