@@ -5,11 +5,15 @@
     <meta charset="UTF-8">
     <title>JS Objekter</title>
     <style>
+        body {}
+
+
+
         article {
             border: 1px solid #333;
             padding: 10px;
             background-color: #E9E8ED;
-            border-radius: 17px;
+            border-radius: 14px;
 
         }
 
@@ -21,37 +25,63 @@
             width: 90vw;
             max-width: 1100px;
             margin: 0 auto;
-            text-align: center;
+
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             grid-gap: 5px;
 
         }
 
-        h1 {
+        h1,
+        h2 {
             text-align: center;
+
+        }
+
+        header {
+            text-align: center;
+        }
+
+        .valgt {
+            color: dimgray;
         }
 
     </style>
 </head>
 
 <body>
+
+
+    <!--<img src="startbillede.png" alt="splashbillede"> -->
+
     <h1>Bistro Babushka</h1>
     <h2>MENU</h2>
+    <header>
+        <button class="filter valg" data-køn="alle">Alle</button>
+        <button class="filter" data-køn="forretter">Forretter</button>
+        <button class="filter" data-køn="hovedretter">Hovedretter</button>
+        <button class="filter" data-køn="desserter">Desserter</button>
+        <button class="filter" data-køn="drikkevarer">Drikkevarer</button>
+    </header>
     <section>
+
 
     </section>
 
     <template>
         <article>
             <h2></h2>
+
+            <h3 class="navn"></h3>
             <img src="" alt="">
-            <h2 class="navn"></h2>
             <p class="kort"></p>
             <p class="pris"></p>
         </article>
     </template>
+
     <script>
+        let filter = "alle";
+        let retter;
         let container = document.querySelector("section");
         let temp = document.querySelector("template");
 
@@ -62,26 +92,50 @@
 
         async function hentdata() {
             const respons = await fetch(link);
-            const json = await respons.json();
-            vis(json);
+            retter = await respons.json();
+            addEventListenerToButtons();
+            vis();
         }
 
 
-        function vis(retter) {
+        function vis() {
             console.log(retter);
+            container.textContent = "";
 
             //løb igennem array "dyr"
 
             retter.feed.entry.forEach(ret => {
-                const klon = temp.cloneNode(true).content;
-                klon.querySelector(".navn").textContent = ret.gsx$navn.$t;
-                klon.querySelector("img").src = "billeder/small/" + ret.gsx$billede.$t + ".jpg";
-                klon.querySelector(".kort").textContent = ret.gsx$kort.$t;
-                klon.querySelector(".pris").textContent = ret.gsx$pris.$t;
-                container.appendChild(klon);
+                if (filter == ret.gsx$kategori.$t.toLowerCase() || filter == "alle") {
+                    console.log(filter);
+                    const klon = temp.cloneNode(true).content;
+                    klon.querySelector(".navn").textContent = ret.gsx$navn.$t;
+                    klon.querySelector("img").src = "billeder/small/" + ret.gsx$billede.$t + ".jpg";
+                    klon.querySelector(".kort").textContent = ret.gsx$kort.$t;
+                    klon.querySelector(".pris").textContent = "Pris: " + ret.gsx$pris.$t + ",-";
+                    container.appendChild(klon);
+                };
 
 
             })
+        }
+
+
+
+        function addEventListenerToButtons() {
+            document.querySelectorAll(".filter").forEach((btn) => {
+                btn.addEventListener("click", filterBtns);
+            })
+        }
+
+        function filterBtns() {
+            filter = this.dataset.køn;
+            document.querySelector("h2").textContent = this.textContent;
+            document.querySelectorAll(".filter").forEach((btn) => {
+                btn.classList.remove("valgt");
+            })
+            this.classList.add("valgt");
+            vis();
+
         }
 
         hentdata();
